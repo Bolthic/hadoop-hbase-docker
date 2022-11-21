@@ -1,0 +1,16 @@
+--- a/hadoop-client-modules/hadoop-client-check-test-invariants/pom.xml	2022-06-22 16:21:05.000000000 +0200
++++ b/hadoop-client-modules/hadoop-client-check-test-invariants/pom.xml	2022-11-18 17:07:40.613645694 +0100
+@@ -112,6 +112,13 @@
+                         <ignoreClass>*</ignoreClass>
+                       </ignoreClasses>
+                     </dependency>
++                    <dependency>
++                      <groupId>org.apache.hadoop</groupId>
++                      <artifactId>hadoop-client-minicluster</artifactId>
++                      <ignoreClasses>
++                        <ignoreClass>*</ignoreClass>
++                      </ignoreClasses>
++                    </dependency>
+                   </dependencies>
+                 </banDuplicateClasses>
+               </rules>

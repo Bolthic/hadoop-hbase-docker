@@ -1,0 +1,23 @@
+{
+    "COMMON": {
+        "URL": "https://downloads.apache.org/hadoop/common",
+        "DL": "https://dlcdn.apache.org/hadoop/common",
+        "KEYS": "https://downloads.apache.org/hadoop/common/KEYS",
+        "REPO": "https://github.com/apache/hadoop.git"
+    },
+    "3.3.4":{
+        "BIN": {
+            "URL": "hadoop-3.3.4/hadoop-3.3.4.tar.gz",
+            "SHA": "hadoop-3.3.4/hadoop-3.3.4.tar.gz.sha512",
+            "ASC": "/hadoop-3.3.4/hadoop-3.3.4.tar.gz.asc"
+        },
+        "SRC": {
+            "URL": "hadoop-3.3.4/hadoop-3.3.4-src.tar.gz",
+            "SHA": "hadoop-3.3.4/hadoop-3.3.4-src.tar.gz.sha512",
+            "ASC": "/hadoop-3.3.4/hadoop-3.3.4-src.tar.gz.asc",
+            "PATCH": [
+                "hadoop-client-check-test-invariants.duplicate-avro.patch"
+            ]
+        }
+    }
+}

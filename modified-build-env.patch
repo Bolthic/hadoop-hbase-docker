@@ -1,0 +1,17 @@
+diff --git a/modified-build-env.sh b/modified-build-env.sh
+index 375a027a06b..bba70153b39 100755
+--- a/modified-build-env.sh
++++ b/modified-build-env.sh
+@@ -87,9 +87,9 @@ DOCKER_INTERACTIVE_RUN=${DOCKER_INTERACTIVE_RUN-"-i -t"}
+ # within the container and use the result on your normal
+ # system.  And this also is a significant speedup in subsequent
+ # builds because the dependencies are downloaded only once.
+-docker run --rm=true $DOCKER_INTERACTIVE_RUN \
+-  -v "${PWD}:${DOCKER_HOME_DIR}/hadoop${V_OPTS:-}" \
+-  -w "${DOCKER_HOME_DIR}/hadoop" \
++docker run --rm=true -i \
++  -v "${PWD}/..:${DOCKER_HOME_DIR}${V_OPTS:-}" \
++  -w "${DOCKER_HOME_DIR}" \
+   -v "${HOME}/.m2:${DOCKER_HOME_DIR}/.m2${V_OPTS:-}" \
+   -v "${HOME}/.gnupg:${DOCKER_HOME_DIR}/.gnupg${V_OPTS:-}" \
+   -u "${USER_ID}" \
