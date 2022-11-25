@@ -1,5 +1,5 @@
 FROM sebge2/hadoop-hbase-base:latest
-MAINTAINER sgerard <sgerard@emasphere.com>
+LABEL org.opencontainers.image.authors="niiboltoh3@protonmail.com"
 
 # move all configuration files into container
 ADD files/hadoop/* /tmp/
