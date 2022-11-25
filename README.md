@@ -24,21 +24,21 @@ As handler of HBase native Zookeeper is used. For large clusters is highly recom
 ### Usage
 #### 1] Clone git repository
 ```
-$ git clone https://github.com/ferune/hadoop-hbase-docker.git
+$ git clone https://github.com/bolthic/hadoop-hbase-docker.git
 $ cd hadoop-hbase-docker
 ```
 
 #### 2] Get docker images 
-Two options how to get images are available. By pulling images directly from Docker official repository or build from Dockerfiles and sources files(see Dockerfile in each hadoop-hbase-* directory). Builds on DockerHub are automatically created by pull trigger or GitHub trigger after update Dockerfiles. Triggers are setuped for tag:latest. Below is example of stable version ferune/hadoop-hbase-<>:0.1. Version ferune/hadoop-hbase-<>:latest is compiled on DockerHub from master branche on GitHub.
+Two options how to get images are available. By pulling images directly from Docker official repository or build from Dockerfiles and sources files(see Dockerfile in each hadoop-hbase-* directory). Builds on DockerHub are automatically created by pull trigger or GitHub trigger after update Dockerfiles. Triggers are setuped for tag:latest. Below is example of stable version bolthic/hadoop-hbase-<>:0.1. Version bolthic/hadoop-hbase-<>:latest is compiled on DockerHub from master branche on GitHub.
 
 ###### a) Download from Docker hub
 ```
-$ docker pull ferune/hadoop-hbase-master:latest
-$ docker pull ferune/hadoop-hbase-slave:latest
+$ docker pull bolthic/hadoop-hbase-master:latest
+$ docker pull bolthic/hadoop-hbase-slave:latest
 ```
 
 ###### b)Build from sources(Dockerfiles)
-Firstly build Hadoop dockere images [ferune/hadoop-docker](https://github.com/ferune/hadoop-docker).
+Firstly build Hadoop dockere images [bolthic/hadoop-docker](https://github.com/bolthic/hadoop-docker).
 The first argument of the script for bulilds is must be folder with Dockerfile. Tag for sources is **latest**
 ```
 $ ./build-image.sh hadoop-hbase-base
@@ -48,14 +48,14 @@ $ ./build-image.sh hadoop-hbase-base
 ```
 $ docker images
 
-ferune/hadoop-hbase-master               latest              2f86a3daef76        48 minutes ago           1.091 GB
-ferune/hadoop-hbase-slave                latest              ed119b77ecdf        53 minutes ago           1.091 GB
-ferune/hadoop-hbase-base                 latest              00fd6c19004f        58 minutes ago           1.091 GB
+bolthic/hadoop-hbase-master               latest              2f86a3daef76        48 minutes ago           1.091 GB
+bolthic/hadoop-hbase-slave                latest              ed119b77ecdf        53 minutes ago           1.091 GB
+bolthic/hadoop-hbase-base                 latest              00fd6c19004f        58 minutes ago           1.091 GB
 
 ```
 
 #### 3] Initialize Hadoop (master and slaves)
-For starting Hadoop cluster see documentation of [ferune/hadoop-docker](https://github.com/ferune/hadoop-docker/blob/master/README.md#3-initialize-hadoop-master-and-slaves).
+For starting Hadoop cluster see documentation of [bolthic/hadoop-docker](https://github.com/bolthic/hadoop-docker/blob/master/README.md#3-initialize-hadoop-master-and-slaves).
 
 If Hadoop is runnig go to next step.
 

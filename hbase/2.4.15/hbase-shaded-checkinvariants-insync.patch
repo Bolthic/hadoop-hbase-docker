@@ -1,0 +1,18 @@
+--- a/hbase-shaded/hbase-shaded-check-invariants/pom.xml	2022-11-25 14:49:45.896990957 +0100
++++ b/hbase-shaded/hbase-shaded-check-invariants/pom.xml	2022-11-25 14:48:12.840320234 +0100
+@@ -169,6 +169,7 @@
+                script than to copy it via remote-resources-plugin, but
+                we need to make sure they stay the same.
+             -->
++          <!--
+           <execution>
+             <id>make-sure-validation-files-are-in-sync</id>
+             <goals>
+@@ -184,6 +185,7 @@
+               </arguments>
+             </configuration>
+           </execution>
++          -->
+           <!--
+             Check that we actually relocated everything we included.
+             It's critical that we don't ship third party dependencies that haven't

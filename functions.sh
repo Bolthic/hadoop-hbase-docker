@@ -64,6 +64,15 @@ function download_distrib(){
         else
             echo >&2 "   Failed: shasum ok but gpg signature failed"
         fi
+    elif [[ "`cat ${FILE}.sha`" = "`$GPG --print-md SHA512 ${FILE}`" ]]; then
+        echo "   $GPG --verify ${FILE}.asc ${FILE}"
+        if $GPG --verify "${FILE}.asc" "${FILE}" 2>/dev/null; then
+            echo "   File is ok"
+            cp "${FILE}" "${DEST}"
+            rm -f "${FILE}" "${FILE}.sha" "${FILE}.asc" "${FILE}.keys"
+        else
+            echo >&2 "   Failed: shasum ok but gpg signature failed"
+        fi
     else
         echo "   $GPG --verify ${FILE}.asc ${FILE}"
         if $GPG --verify "${FILE}.asc" "${FILE}" 2>/dev/null; then
@@ -79,6 +88,14 @@ function untar(){
     DEST="$2"
     DEST_DIR=`dirname "${DEST}"`
     DEST_NAME=`basename "${DEST}"`
+    RESET="$3"
+
+    if [[ -L "$DEST" ]] && [[ "$RESET" = "--reset" ]]; then
+        OLD_DIR=`$READLINK -f ${DEST}`
+        if [[ -d "$OLD_DIR" ]]; then
+            rm -rf "$OLD_DIR"
+        fi
+    fi
 
     if [[ -L "${DEST}" ]]; then
         echo "   removing old link: ${DEST}"
@@ -114,6 +131,7 @@ function clone_repo_at(){
     DEST="$1"
     DEST_DIR=`dirname $DEST`
     REPO=`json_extract "$2" ".COMMON.REPO"`
+    RELEASE=$3
 
     mkdir -p ${DEST_DIR}
     if [[ -L $DEST ]]; then
@@ -122,25 +140,42 @@ function clone_repo_at(){
 
     if [[ ! -d ${DEST}.git ]]; then
         echo -e "   git clone $REPO"
-        git clone "$REPO" ${DEST}.git
+        $GIT clone "$REPO" ${DEST}.git
     fi
+    
     ln -s ${DEST}.git ${DEST}
+
+    cd $DEST
+    current_release=`git symbolic-ref --short HEAD`
+    if [[ ! "$current_release" = "$RELEASE" ]]; then
+        echo -e "   switching from $current_release to $RELEASE"
+        echo -e "   cleaning repo $DEST"
+        $GIT reset --hard
+        $GIT clean -fd
+        $GIT checkout $RELEASE
+    fi
+
 }
 
 function clean_repo(){
     DEST="$1"
     cd $DEST
     echo "   cleaning repo $DEST"
-    git reset --hard
-    git clean -fd
+    $GIT reset --hard
+    $GIT clean -fd
 }
+
+
 
 # checking for commandss
 check_command curl
 check_command docker
+check_command git
 check_command gpg
 check_command jq
 check_command patch
+check_command readlink
 check_command shasum
 check_command tar
+
 

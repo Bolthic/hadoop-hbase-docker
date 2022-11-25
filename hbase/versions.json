@@ -1,0 +1,8 @@
+{
+    "COMMON": {
+        "URL": "https://downloads.apache.org/hbase",
+        "DL": "https://dlcdn.apache.org/hbase",
+        "KEYS": "https://downloads.apache.org/hbase/KEYS",
+        "REPO": "https://github.com/apache/hbase.git"
+    }
+}

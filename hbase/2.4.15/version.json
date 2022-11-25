@@ -1,0 +1,17 @@
+{
+    "2.4.15": {
+        "BIN": {
+            "URL": "2.4.15/hbase-2.4.15-bin.tar.gz",
+            "SHA": "2.4.15/hbase-2.4.15-bin.tar.gz.sha512",
+            "ASC": "2.4.15/hbase-2.4.15-bin.tar.gz.asc"
+        },
+        "SRC": {
+            "URL": "2.4.15/hbase-2.4.15-src.tar.gz",
+            "SHA": "2.4.15/hbase-2.4.15-src.tar.gz.sha512",
+            "ASC": "2.4.15/hbase-2.4.15-src.tar.gz.asc",
+            "PATCH": [
+                "hbase-shaded-checkinvariants-insync.patch"
+            ]
+        }
+    }
+}
