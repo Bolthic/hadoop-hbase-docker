@@ -13,12 +13,7 @@ if [[ -e "$dist_file" ]]; then
 fi
 
 # hadoop versions data
-if [[ ! -e hadoop/versions.json ]]; then
-    echo >&2 "Where is my hadoop versions.json file"
-    exit 1
-else
-    HADOOP_VERSIONS=`cat hadoop/versions.json`
-fi
+HADOOP_VERSIONS=`json_load hadoop ${HADOOP_VERSION}`
 
 # ensure our build env is ready
 function path_build_env(){
@@ -32,7 +27,7 @@ function path_build_env(){
 
             # to make the patch file 
             # diff -Naur start-build-env.sh modified-build-env.sh 
-            echo "   ^PATCH -p1 < ${DOCKER_HOME}/modified-build-env.patch"
+            echo "   PATCH -p1 < ${DOCKER_HOME}/modified-build-env.patch"
             $PATCH -p1 < ${DOCKER_HOME}/modified-build-env.patch
         else
             echo >&2 "$1 is missing the start-build-env.sh script"
@@ -72,15 +67,15 @@ case "$HADOOP_MODE" in
         ;;
     SOURCE)
         download_distrib "${src_file}" "${HADOOP_VERSIONS}" "${HADOOP_VERSION}" "SRC"
-        untar "${src_file}" "$TMP_DIR/hadoop"
-        apply_patches "$TMP_DIR/hadoop" "${HADOOP_VERSIONS}" "${HADOOP_VERSION}" "$DOCKER_HOME/hadoop"
-        path_build_env "$TMP_DIR/hadoop"
-        compile_hadoop "$TMP_DIR/hadoop"
+        untar "${src_file}" "$TMP_DIR/src/hadoop"
+        apply_patches "$TMP_DIR/src/hadoop" "${HADOOP_VERSIONS}" "${HADOOP_VERSION}" "$DOCKER_HOME/hadoop"
+        path_build_env "$TMP_DIR/src/hadoop"
+        compile_hadoop "$TMP_DIR/src/hadoop"
         ;;
     REPO)
-        clone_repo_at "$TMP_DIR/hadoop" "${HADOOP_VERSIONS}" "rel/release-${HADOOP_VERSION}"
+        clone_repo_at "$TMP_DIR/git/hadoop" "${HADOOP_VERSIONS}" "rel/release-${HADOOP_VERSION}"
         if [[ "$1" == "--reset" ]]; then
-            clean_repo "$TMP_DIR/hadoop"
+            clean_repo "$TMP_DIR/git/hadoop"
             exit 0
         fi
         ;;

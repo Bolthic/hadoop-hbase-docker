@@ -10,6 +10,21 @@ function check_command(){
     fi
 }
 
+
+function json_load(){
+    f1="$1/versions.json"
+    f2="$1/$2/version.json"
+    if [[ ! -e $f1 ]]; then
+        echo >&2 "Missing config file $f1"
+        exit 1
+    fi
+    if [[ ! -e $f2 ]]; then
+        echo >&2 "Missing config file $f2"
+        exit 1
+    fi
+    $JQ -s 'add' $f1 $f2
+}
+
 function json_extract(){
     echo "$1" | $JQ -r "$2"
 }
@@ -70,6 +85,7 @@ function untar(){
         rm -rf "${DEST}"
     fi
 
+    mkdir -p "${DEST_DIR}"
     cd "${DEST_DIR}"
 
     echo "   $TAR xvzf $SRC"
@@ -96,18 +112,29 @@ function apply_patches(){
 
 function clone_repo_at(){
     DEST="$1"
+    DEST_DIR=`dirname $DEST`
     REPO=`json_extract "$2" ".COMMON.REPO"`
 
+    mkdir -p ${DEST_DIR}
     if [[ -L $DEST ]]; then
         rm -f $DEST
     fi 
 
     if [[ ! -d ${DEST}.git ]]; then
-        echo -e "git clone https://github.com/apache/hadoop.git"
-        git clone "https://github.com/apache/hadoop.git" ${dest}.git
+        echo -e "   git clone $REPO"
+        git clone "$REPO" ${DEST}.git
     fi
-    ln -s ${dest}.git ${dest}
+    ln -s ${DEST}.git ${DEST}
 }
+
+function clean_repo(){
+    DEST="$1"
+    cd $DEST
+    echo "   cleaning repo $DEST"
+    git reset --hard
+    git clean -fd
+}
+
 # checking for commandss
 check_command curl
 check_command docker
