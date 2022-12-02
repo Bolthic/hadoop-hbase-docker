@@ -5,18 +5,19 @@ Quickly build arbitrary size Hadoop cluster based on Docker. Includes HBase data
 
 Core of this project is based on [krejcmat/hadoop-hbase-docker](https://github.com/krejcmat/hadoop-hbase-docker).
 
-- Work in progress to be able to compile from source
-- Compiling hadoop from source could be hazardous
+- wip: building docker image
+- wip: use TOSIT images
+- done: compile hadoop - hbase from source
 
 ## Version of products
 
-| system          | version      | 
-| ----------------|:------------:| 
+| system          | version      |
+| ----------------|:------------:|
 | Hadoop          | 3.3.4        |
 | HBase           | 2.4.15       |
 
 
-Used versions of Hadoop and HBase are officially compatible - fully tested.
+Used versions of Hadoop and HBase are configurable, they are not fully tested. Go and see [Tosit/TDP](https://github.com/TOSIT-IO)
 As handler of HBase native Zookeeper is used. For large clusters is highly recomanded to use external Zookeeper management(not include).
 
 

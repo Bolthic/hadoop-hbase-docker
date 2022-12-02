@@ -3,13 +3,13 @@
 
 <configuration>
    <property>
-   <name>hbase.rootdir</name>
-     <value>hdfs://master.krejcmat.com:9000/hbase</value>
+        <name>hbase.rootdir</name>
+     <valuehdfs://master.bolthic.com:9000/hbase</value>
       <description>The directory shared by region servers. Should be fully-qualified to include the filesystem to use. E.g: hdfs://NAMENODE_SERVER:PORT/HBASE_ROOTDIR</description>
    </property>
    <property>
       <name>hbase.master</name>
-      <value>hdfs://master.krejcmat.com:60000</value>
+      <value>hdfs://master.bolthic.com:60000</value>
       <description>The host and port that the HBase master runs at.</description>
    </property>
    <property>
@@ -35,7 +35,7 @@
    </property>
       <property>
       <name>hbase.zookeeper.property.datadir</name>
-      <value>file:///root/zookeeper</value>
+      <value>file:///appli_data/zookeeper</value>
       <description>location of storage of zookeeper data</description>
    </property>
 </configuration>

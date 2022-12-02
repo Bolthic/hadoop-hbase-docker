@@ -1,5 +1,5 @@
 #!/bin/bash
-hadoop_home=/usr/local/hbase
+hadoop_home=/appli/var/hbase
 cd $hadoop_home
 echo -e "starting hbase \n"
 ./bin/start-hbase.sh

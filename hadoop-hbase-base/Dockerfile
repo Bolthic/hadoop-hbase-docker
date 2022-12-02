@@ -1,22 +1,68 @@
 FROM debian:bullseye
 LABEL org.opencontainers.image.authors="niiboltoh3@protonmail.com"
 LABEL version="1.0"
-LABEL description="Image de base"   
+LABEL description="Image de base"
+ARG hadoop
+ARG hbase
+ENV HADOOP_DISTRO=$hadoop
+ENV HBASE_DISTRO=$hbase 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt update
-RUN apt-get install -y --no-install-recommends openjdk-11-jre
-RUN java -version
+#removing unnecessary
+RUN cp -R /usr/share/locale/en* /tmp/ && rm -rf /usr/share/locale/* && mv /tmp/en* /usr/share/locale/ 
+RUN mkdir -p /usr/share/man/man1 /usr/share/man/man2
 
+# updating system
+RUN sed -i "s/ main/ main contrib/g" /etc/apt/sources.list
+RUN apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y
+RUN apt-get update && apt-get upgrade -y && apt-get -y install unzip dnsmasq wget openssh-server vim net-tools iproute2 dnsutils
+RUN apt-get update && apt-get install -y --no-install-recommends openjdk-11-jre
+RUN rm -rf /var/cache/debconf/*-old && rm -rf /var/lib/apt/lists/* && rm -rf /usr/share/doc/* 
 
-# move all configuration files into container
-ADD files/* /usr/local/
-ADD ../dist/* /usr/local/
+#message
+RUN echo "`cat /etc/issue.net` Docker Image - Bolthic/bullseye-slim - `date +'%Y/%m/%d'`" > /etc/motd
 
-#install hbase 
-# RUN wget -q -o out.log -P /tmp http://www.eu.apache.org/dist/hbase/1.2.4/hbase-1.2.4-bin.tar.gz && \
-# tar xzf /tmp/hbase-1.2.4-bin.tar.gz -C /usr/local && \
-# rm /tmp/hbase-1.2.4-bin.tar.gz  && \
-# mv /usr/local/hbase-1.2.4 /usr/local/hbase && \
-# mv /usr/local/hbase-env.sh /usr/local/hbase/conf/hbase-env.sh  && \
-# mv /usr/local/bashrc ~/.bashrc
+# our install structure
+RUN mkdir -p /appli_data
+RUN mkdir -p /appli/bin
+RUN mkdir -p /appli/var
+RUN mkdir -p /appli/etc
+RUN mkdir -p /appli/local
+
+# dnsmasq configuration
+ADD dnsmasq/* /etc/
+
+# install serf
+RUN wget -q -o out.log -P /tmp/ https://releases.hashicorp.com/serf/0.8.2/serf_0.8.2_linux_amd64.zip && rm -rf /appli/bin/serf
+RUN unzip /tmp/serf_0.8.2_linux_amd64.zip -d /appli/bin && rm /tmp/serf_0.8.2_linux_amd64.zip
+
+# configure serf
+ENV SERF_CONFIG_DIR /appli/etc/serf
+ADD serf/* $SERF_CONFIG_DIR/
+ADD handlers $SERF_CONFIG_DIR/handlers
+RUN chmod +x $SERF_CONFIG_DIR/event-router.sh $SERF_CONFIG_DIR/start-serf-agent.sh
+RUN ln -s $SERF_CONFIG_DIR/start-serf-agent.sh /appli/bin/start-serf-agent.sh
+
+#JAVA
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+ENV PATH $PATH:$JAVA_HOME/bin
+
+#configure ssh free key access
+ADD ssh_config /appli/local/
+RUN mkdir /var/run/sshd && \
+ssh-keygen -t rsa -f ~/.ssh/id_rsa -P '' && \
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys && \
+mv /appli/local/ssh_config ~/.ssh/config && \
+sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+
+#install hadoop 
+ADD dist/hadoop-${HADOOP_DISTRO}.tar.gz /appli/var/
+RUN mv /appli/var/hadoop-${HADOOP_DISTRO} /appli/var/hadoop
+
+ADD dist/hbase-${HBASE_DISTRO}-bin.tar.gz /appli/var/
+RUN mv /appli/var/hbase-${HBASE_DISTRO} /appli/var/hbase
+
+ADD set-env.sh /appli/etc/set-env.sh
+ADD bashrc /appli/local/
+RUN mv /appli/local/bashrc ~/.bashrc
+RUN chmod 0755 ~/.bashrc /appli/etc/set-env.sh
