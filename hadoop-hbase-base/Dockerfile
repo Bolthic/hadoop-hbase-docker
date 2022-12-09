@@ -15,7 +15,7 @@ RUN mkdir -p /usr/share/man/man1 /usr/share/man/man2
 # updating system
 RUN sed -i "s/ main/ main contrib/g" /etc/apt/sources.list
 RUN apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y
-RUN apt-get update && apt-get upgrade -y && apt-get -y install unzip dnsmasq wget openssh-server vim net-tools iproute2 dnsutils
+RUN apt-get update && apt-get upgrade -y && apt-get -y install unzip dnsmasq wget openssh-server vim net-tools iproute2 dnsutils sudo
 RUN apt-get update && apt-get install -y --no-install-recommends openjdk-11-jre
 RUN rm -rf /var/cache/debconf/*-old && rm -rf /var/lib/apt/lists/* && rm -rf /usr/share/doc/* 
 
@@ -52,7 +52,7 @@ ADD ssh_config /appli/local/
 RUN mkdir /var/run/sshd && \
 ssh-keygen -t rsa -f ~/.ssh/id_rsa -P '' && \
 cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys && \
-mv /appli/local/ssh_config ~/.ssh/config && \
+cp /appli/local/ssh_config ~/.ssh/config && \
 sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 
 #install hadoop 
@@ -64,5 +64,14 @@ RUN mv /appli/var/hbase-${HBASE_DISTRO} /appli/var/hbase
 
 ADD set-env.sh /appli/etc/set-env.sh
 ADD bashrc /appli/local/
-RUN mv /appli/local/bashrc ~/.bashrc
+RUN cp /appli/local/bashrc ~/.bashrc
 RUN chmod 0755 ~/.bashrc /appli/etc/set-env.sh
+
+RUN useradd -ms /bin/bash bolthic
+RUN mkdir -p /home/bolthic/.ssh && \
+ssh-keygen -t rsa -f /home/bolthic/.ssh/id_rsa -P '' && \
+cat /home/bolthic/.ssh/id_rsa.pub >> /home/bolthic/.ssh/authorized_keys && \
+cp /appli/local/ssh_config /home/bolthic/.ssh/config
+RUN cp /appli/local/bashrc /home/bolthic/.bashrc
+RUN chmod 0755 /home/bolthic/.bashrc
+RUN chown -R bolthic:bolthic /home/bolthic/.ssh /home/bolthic/.bashrc

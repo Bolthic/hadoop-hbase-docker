@@ -4,7 +4,7 @@ cd $hadoop_home
 echo -e "starting hbase \n"
 ./bin/start-hbase.sh
 
-#echo -e "starting local master beckup \n"
+#echo -e "starting local master backup \n"
 #./bin/local-master-backup.sh start 1
 #The number at the end of the command signifies an offset that is added to the default
 #ports of 60000 for RPC and 60010 for the web-based UI. In this example, a new master

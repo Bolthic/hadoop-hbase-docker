@@ -1,13 +1,20 @@
 # hadoop-hbase-docker
 
 Quickly build arbitrary size Hadoop cluster based on Docker. Includes HBase database system
-------
+
+---
 
 Core of this project is based on [krejcmat/hadoop-hbase-docker](https://github.com/krejcmat/hadoop-hbase-docker).
 
+Usefull resources:
+
+- Adaltas: [HowTo build hadoop/hbase](https://www.adaltas.com/fr/2020/12/18/big-data-open-source-distribution/)
+
+## TODO
+
 - wip: building docker image
 - wip: use TOSIT images
-- done: compile hadoop - hbase from source
+- done: compile hadoop && hbase from source
 
 ## Version of products
 
@@ -16,49 +23,119 @@ Core of this project is based on [krejcmat/hadoop-hbase-docker](https://github.c
 | Hadoop          | 3.3.4        |
 | HBase           | 2.4.15       |
 
-
-Used versions of Hadoop and HBase are configurable, they are not fully tested. Go and see [Tosit/TDP](https://github.com/TOSIT-IO)
-As handler of HBase native Zookeeper is used. For large clusters is highly recomanded to use external Zookeeper management(not include).
-
-
+Used versions of Hadoop and HBase are configurable, they are not fully tested. Go and see [Tosit/TDP](https://github.com/TOSIT-IO) for a fully tested compatibility.
 
 ### Usage
+
 #### 1] Clone git repository
-```
+
+```shell
 $ git clone https://github.com/bolthic/hadoop-hbase-docker.git
 $ cd hadoop-hbase-docker
 ```
 
-#### 2] Get docker images 
+#### 2] Getting hadoop and hbase distribution files
+
+if you need other versions, modify HADOOP_VERSION and HBASE_VERSION. Additionnal configuration may be needed in hadoop and hbase sub directory
+
+```shell
+$ build_hadoop.sh
+$ build_habase.sh
+```
+
+#### 3] Get docker images
+
 Two options how to get images are available. By pulling images directly from Docker official repository or build from Dockerfiles and sources files(see Dockerfile in each hadoop-hbase-* directory). Builds on DockerHub are automatically created by pull trigger or GitHub trigger after update Dockerfiles. Triggers are setuped for tag:latest. Below is example of stable version bolthic/hadoop-hbase-<>:0.1. Version bolthic/hadoop-hbase-<>:latest is compiled on DockerHub from master branche on GitHub.
 
 ###### a) Download from Docker hub
-```
+
+```shell
 $ docker pull bolthic/hadoop-hbase-master:latest
 $ docker pull bolthic/hadoop-hbase-slave:latest
 ```
 
 ###### b)Build from sources(Dockerfiles)
-Firstly build Hadoop dockere images [bolthic/hadoop-docker](https://github.com/bolthic/hadoop-docker).
-The first argument of the script for bulilds is must be folder with Dockerfile. Tag for sources is **latest**
-```
-$ ./build-image.sh hadoop-hbase-base
+
+The first argument of the script for builds is must be folder with Dockerfile or **all**. Tag for sources is **latest**
+
+```shell
+$ ./build-image.sh all
 ```
 
 ###### Check images
-```
+
+``` shell
 $ docker images
 
-bolthic/hadoop-hbase-master               latest              2f86a3daef76        48 minutes ago           1.091 GB
-bolthic/hadoop-hbase-slave                latest              ed119b77ecdf        53 minutes ago           1.091 GB
-bolthic/hadoop-hbase-base                 latest              00fd6c19004f        58 minutes ago           1.091 GB
+bolthic/hadoop-hbase-master   latest     c78d798e9d19   2 seconds ago   2.81GB
+bolthic/hadoop-hbase-slave    latest     099ff00f2c16   6 minutes ago   2.81GB
+bolthic/hadoop-hbase-base     latest     8e88787dca7a   6 minutes ago   2.81GB
 
 ```
 
-#### 3] Initialize Hadoop (master and slaves)
-For starting Hadoop cluster see documentation of [bolthic/hadoop-docker](https://github.com/bolthic/hadoop-docker/blob/master/README.md#3-initialize-hadoop-master-and-slaves).
+#### 4] Initialize Hadoop (master and slaves)
 
-If Hadoop is runnig go to next step.
+##### a) run containers
+
+The first parameter of start-container.sh script is tag of image version, second parameter configuring number of nodes.
+
+``` shell
+$ ./start-container.sh latest 2
+
+start master container...
+start slave1 container...
+start slave2 container...
+```
+
+##### b) Check status
+
+Check members of cluster
+
+```shell
+$ serf members
+
+master.bolthic.com  172.17.0.2:7946  alive  
+slave1.bolthic.com  172.17.0.3:7946  alive
+slave2.bolthic.com  172.17.0.4:7946  alive
+```
+
+##### b) Run Hadoop cluster
+
+###### Creating configures file for Hadoop and Hbase(includes zookeeper)
+
+``` shell
+$ cd ~
+$ ./configure-members.sh
+
+
+```
+
+###### Starting Hadoop
+
+```
+$ ./start-hadoop.sh 
+ #For stop Hadoop ./stop-hadoop.sh
+
+Starting namenodes on [master.krejcmat.com]
+master.krejcmat.com: Warning: Permanently added 'master.krejcmat.com,172.17.0.2' (ECDSA) to the list of known hosts.
+master.krejcmat.com: starting namenode, logging to /usr/local/hadoop/logs/hadoop-root-namenode-master.krejcmat.com.out
+slave1.krejcmat.com: Warning: Permanently added 'slave1.krejcmat.com,172.17.0.3' (ECDSA) to the list of known hosts.
+master.krejcmat.com: Warning: Permanently added 'master.krejcmat.com,172.17.0.2' (ECDSA) to the list of known hosts.
+slave1.krejcmat.com: starting datanode, logging to /usr/local/hadoop/logs/hadoop-root-datanode-slave1.krejcmat.com.out
+master.krejcmat.com: starting datanode, logging to /usr/local/hadoop/logs/hadoop-root-datanode-master.krejcmat.com.out
+Starting secondary namenodes [0.0.0.0]
+0.0.0.0: Warning: Permanently added '0.0.0.0' (ECDSA) to the list of known hosts.
+0.0.0.0: starting secondarynamenode, logging to /usr/local/hadoop/logs/hadoop-root-secondarynamenode-master.krejcmat.com.out
+
+starting yarn daemons
+starting resource manager, logging to /usr/local/hadoop/logs/yarn--resourcemanager-master.krejcmat.com.out
+master.krejcmat.com: Warning: Permanently added 'master.krejcmat.com,172.17.0.2' (ECDSA) to the list of known hosts.
+slave1.krejcmat.com: Warning: Permanently added 'slave1.krejcmat.com,172.17.0.3' (ECDSA) to the list of known hosts.
+slave1.krejcmat.com: starting nodemanager, logging to /usr/local/hadoop/logs/yarn-root-nodemanager-slave1.krejcmat.com.out
+master.krejcmat.com: starting nodemanager, logging to /usr/local/hadoop/logs/yarn-root-nodemanager-master.krejcmat.com.out
+```
+
+
 
 #### 4] Initialize Hbase database and run Hbase shell
 ######Start HBase

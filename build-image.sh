@@ -68,7 +68,6 @@ function docker_build()
 	cd $TMP_DIR/$1
 	echo -e "\n\nsudo docker build -t bolthic/$1:$tag ."
 	sudo docker build -t bolthic/$1:$tag . --build-arg hadoop=${HADOOP_DISTRO} --build-arg hbase=${HBASE_DISTRO}
-	cd ${DOCKER_HOME}
 }
 
 echo "Building ${DOCKER_OWNER}/hadoop-hbase-${BUILD_VERSION} in ${DOCKER_HOME}"
@@ -80,27 +79,27 @@ sudo docker images >images.txt
 #all image is based on dnsmasq. master and slaves are based on base image.
 if [ $image == "all" ]
 then
-	docker_rmi hadoop-hbase-master
-	docker_rmi hadoop-hbase-slave
-	docker_rmi hadoop-hbase-base
-	hadoop_build
-	hbase_build
-	docker_build hadoop-hbase-base
-	docker_build hadoop-hbase-master
+	docker_rmi hadoop-hbase-master && \
+	docker_rmi hadoop-hbase-slave && \
+	docker_rmi hadoop-hbase-base && \
+	hadoop_build && \
+	hbase_build && \
+	docker_build hadoop-hbase-base && \
+	docker_build hadoop-hbase-master && \
 	docker_build hadoop-hbase-slave
 elif [ $image == "hadoop-hbase-base" ]
 then
-	docker_rmi hadoop-hbase-base
-	hadoop_build
-	hbase_build
-	docker_build hadoop-hbase-base
+	docker_rmi hadoop-hbase-base && \
+	hadoop_build && \
+	hbase_build && \
+	docker_build hadoop-hbase-base 
 elif [ $image == "hadoop-hbase-master" ]
 then
-	docker_rmi hadoop-hbase-master
+	docker_rmi hadoop-hbase-master && \
 	docker_build hadoop-hbase-master
 elif [ $image == "hadoop-hbase-slave" ]
 then
-	docker_rmi hadoop-hbase-slave
+	docker_rmi hadoop-hbase-slave && \
 	docker_build hadoop-hbase-slave
 else
 	echo "The image name is wrong!"
@@ -109,8 +108,8 @@ fi
 #docker_rmi hadoop-hbase-base
 
 echo -e "\nimages before build"
-cat images.txt
-rm images.txt
+cat $DOKER_HOME/images.txt
+rm $DOCKER_HOME/images.txt
 
 echo -e "\nimages after build"
 sudo docker images

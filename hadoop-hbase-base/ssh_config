@@ -6,4 +6,4 @@ Host 0.0.0.0
   
 Host *.bolthic.com
    StrictHostKeyChecking no
-   UserKnownHostsFile=/dev/null
+#   UserKnownHostsFile=/dev/null
