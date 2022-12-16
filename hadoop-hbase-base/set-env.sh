@@ -19,4 +19,4 @@ export HBASE_INSTALL=/appli/var/hbase
 export HBASE_HOME=$HBASE_INSTALL 
 export PATH=$PATH:$HBASE_INSTALL/bin
 
-export PATH=$PATH:/appli/bin
+export PATH=$PATH:/appli/bin:$JAVA_HOME/bin

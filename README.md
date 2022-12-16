@@ -12,9 +12,9 @@ Usefull resources:
 
 ## TODO
 
-- wip: building docker image
 - wip: use TOSIT images
 - done: compile hadoop && hbase from source
+- done: starting hadoop and hbase
 
 ## Version of products
 
@@ -47,14 +47,14 @@ $ build_habase.sh
 
 Two options how to get images are available. By pulling images directly from Docker official repository or build from Dockerfiles and sources files(see Dockerfile in each hadoop-hbase-* directory). Builds on DockerHub are automatically created by pull trigger or GitHub trigger after update Dockerfiles. Triggers are setuped for tag:latest. Below is example of stable version bolthic/hadoop-hbase-<>:0.1. Version bolthic/hadoop-hbase-<>:latest is compiled on DockerHub from master branche on GitHub.
 
-###### a) Download from Docker hub
+##### a) Download from Docker hub
 
 ```shell
 $ docker pull bolthic/hadoop-hbase-master:latest
 $ docker pull bolthic/hadoop-hbase-slave:latest
 ```
 
-###### b)Build from sources(Dockerfiles)
+##### b)Build from sources(Dockerfiles)
 
 The first argument of the script for builds is must be folder with Dockerfile or **all**. Tag for sources is **latest**
 
@@ -62,7 +62,7 @@ The first argument of the script for builds is must be folder with Dockerfile or
 $ ./build-image.sh all
 ```
 
-###### Check images
+##### Check images
 
 ``` shell
 $ docker images
@@ -99,77 +99,168 @@ slave1.bolthic.com  172.17.0.3:7946  alive
 slave2.bolthic.com  172.17.0.4:7946  alive
 ```
 
-##### b) Run Hadoop cluster
+##### c) Run Hadoop cluster
 
 ###### Creating configures file for Hadoop and Hbase(includes zookeeper)
 
 ``` shell
-$ cd ~
-$ ./configure-members.sh
-
+$ configure-members.sh
+Adding 172.17.0.4 slave2.bolthic.com to /etc/hosts
+Adding 172.17.0.3 slave1.bolthic.com to /etc/hosts
+master.bolthic.com
+slaves           100%   57   102.0KB/s   00:00
+slaves           100%   57    85.1KB/s   00:00
+slaves           100%   57    93.9KB/s   00:00
+hbase-site.xml   100% 1765     3.0MB/s   00:00
+slave2.bolthic.com
+Adding 172.17.0.2 master.bolthic.com to /etc/hosts
+Adding 172.17.0.3 slave1.bolthic.com to /etc/hosts
+slaves          100%   57   107.4KB/s   00:00
+slaves          100%   57   138.7KB/s   00:00
+slaves          100%   57   101.3KB/s   00:00
+hbase-site.xml  100% 1765     2.7MB/s   00:00
+slave1.bolthic.com
+Adding 172.17.0.4 slave2.bolthic.com to /etc/hosts
+Adding 172.17.0.2 master.bolthic.com to /etc/hosts
+slaves          100%   57    83.8KB/s   00:00
+slaves          100%   57    81.6KB/s   00:00
+slaves          100%   57    94.3KB/s   00:00
+hbase-site.xml  100% 1765     2.3MB/s   00:00
 
 ```
 
 ###### Starting Hadoop
 
-```
-$ ./start-hadoop.sh 
- #For stop Hadoop ./stop-hadoop.sh
+``` shell
+$ start-hadoop.sh
+Starting namenodes on [master.bolthic.com]
+Starting datanodes
+Starting secondary namenodes [master.bolthic.com]
+2022-12-16 10:14:44,124 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
 
-Starting namenodes on [master.krejcmat.com]
-master.krejcmat.com: Warning: Permanently added 'master.krejcmat.com,172.17.0.2' (ECDSA) to the list of known hosts.
-master.krejcmat.com: starting namenode, logging to /usr/local/hadoop/logs/hadoop-root-namenode-master.krejcmat.com.out
-slave1.krejcmat.com: Warning: Permanently added 'slave1.krejcmat.com,172.17.0.3' (ECDSA) to the list of known hosts.
-master.krejcmat.com: Warning: Permanently added 'master.krejcmat.com,172.17.0.2' (ECDSA) to the list of known hosts.
-slave1.krejcmat.com: starting datanode, logging to /usr/local/hadoop/logs/hadoop-root-datanode-slave1.krejcmat.com.out
-master.krejcmat.com: starting datanode, logging to /usr/local/hadoop/logs/hadoop-root-datanode-master.krejcmat.com.out
-Starting secondary namenodes [0.0.0.0]
-0.0.0.0: Warning: Permanently added '0.0.0.0' (ECDSA) to the list of known hosts.
-0.0.0.0: starting secondarynamenode, logging to /usr/local/hadoop/logs/hadoop-root-secondarynamenode-master.krejcmat.com.out
 
-starting yarn daemons
-starting resource manager, logging to /usr/local/hadoop/logs/yarn--resourcemanager-master.krejcmat.com.out
-master.krejcmat.com: Warning: Permanently added 'master.krejcmat.com,172.17.0.2' (ECDSA) to the list of known hosts.
-slave1.krejcmat.com: Warning: Permanently added 'slave1.krejcmat.com,172.17.0.3' (ECDSA) to the list of known hosts.
-slave1.krejcmat.com: starting nodemanager, logging to /usr/local/hadoop/logs/yarn-root-nodemanager-slave1.krejcmat.com.out
-master.krejcmat.com: starting nodemanager, logging to /usr/local/hadoop/logs/yarn-root-nodemanager-master.krejcmat.com.out
+Starting resourcemanager
+Starting nodemanagers
+
 ```
 
+###### Testing Hadoop
 
+Computing PI
 
-#### 4] Initialize Hbase database and run Hbase shell
-######Start HBase
+``` shell
+hadoop jar /appli/var/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar pi 10 100
 ```
-$ cd ~
+
+Counting words
+
+``` shell
+echo "can you can a can as a canner can can a can" | hadoop fs -put - /tmp/hdfs-example-input
+hadoop jar /appli/var/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar grep /tmp/hdfs-example-input /tmp/hdfs-example-output 'c[a-z]+'
+hadoop fs -cat /tmp/hdfs-example-output/part-r-00000
+```
+
+#### 5] Initialize Hbase database and run Hbase shell
+
+##### Start HBase
+
+``` shell
 $ ./start-hbase.sh
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/appli/var/hadoop/share/hadoop/common/lib/slf4j-reload4j-1.7.36.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/appli/var/hbase/lib/client-facing-thirdparty/slf4j-reload4j-1.7.33.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.slf4j.impl.Reload4jLoggerFactory]
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/appli/var/hadoop/share/hadoop/common/lib/slf4j-reload4j-1.7.36.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/appli/var/hbase/lib/client-facing-thirdparty/slf4j-reload4j-1.7.33.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.slf4j.impl.Reload4jLoggerFactory]
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by org.apache.hadoop.hbase.unsafe.HBasePlatformDependent (file:/appli/var/hbase/lib/hbase-unsafe-4.1.2.jar) to method java.nio.Bits.unaligned()
+WARNING: Please consider reporting this to the maintainers of org.apache.hadoop.hbase.unsafe.HBasePlatformDependent
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+slave2.bolthic.com: running zookeeper, logging to /appli/var/hbase/logs/hbase-root-zookeeper-slave2.bolthic.com.out
+master.bolthic.com: running zookeeper, logging to /appli/var/hbase/logs/hbase-root-zookeeper-master.bolthic.com.out
+slave1.bolthic.com: running zookeeper, logging to /appli/var/hbase/logs/hbase-root-zookeeper-slave1.bolthic.com.out
+slave1.bolthic.com: SLF4J: Class path contains multiple SLF4J bindings.
+slave1.bolthic.com: SLF4J: Found binding in [jar:file:/appli/var/hadoop/share/hadoop/common/lib/slf4j-reload4j-1.7.36.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+slave1.bolthic.com: SLF4J: Found binding in [jar:file:/appli/var/hbase/lib/client-facing-thirdparty/slf4j-reload4j-1.7.33.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+slave1.bolthic.com: SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+master.bolthic.com: SLF4J: Class path contains multiple SLF4J bindings.
+master.bolthic.com: SLF4J: Found binding in [jar:file:/appli/var/hadoop/share/hadoop/common/lib/slf4j-reload4j-1.7.36.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+master.bolthic.com: SLF4J: Found binding in [jar:file:/appli/var/hbase/lib/client-facing-thirdparty/slf4j-reload4j-1.7.33.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+master.bolthic.com: SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+slave2.bolthic.com: SLF4J: Class path contains multiple SLF4J bindings.
+slave2.bolthic.com: SLF4J: Found binding in [jar:file:/appli/var/hadoop/share/hadoop/common/lib/slf4j-reload4j-1.7.36.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+slave2.bolthic.com: SLF4J: Found binding in [jar:file:/appli/var/hbase/lib/client-facing-thirdparty/slf4j-reload4j-1.7.33.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+slave2.bolthic.com: SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+running master, logging to /appli/var/hbase/logs/hbase--master-master.bolthic.com.out
+master.bolthic.com: running regionserver, logging to /appli/var/hbase/logs/hbase-root-regionserver-master.bolthic.com.out
+slave1.bolthic.com: running regionserver, logging to /appli/var/hbase/logs/hbase-root-regionserver-slave1.bolthic.com.out
+slave2.bolthic.com: running regionserver, logging to /appli/var/hbase/logs/hbase-root-regionserver-slave2.bolthic.com.out
+root@master:~# cat /appli/var/hbase/logs/hbase-root-regionserver-slave2.bolthic.com.out
+cat: /appli/var/hbase/logs/hbase-root-regionserver-slave2.bolthic.com.out: No such file or directory
+root@master:~# 
 
-(hbase(main):001:0>)
 ```
 
-###### Check status
-```
-(hbase(main):001:0>)$ status
+##### Start HBase shell
 
-2 servers, 0 dead, 1.0000 average load
+``` shell
+$ hbase shell
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/appli/var/hadoop/share/hadoop/common/lib/slf4j-reload4j-1.7.36.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/appli/var/hbase/lib/client-facing-thirdparty/slf4j-reload4j-1.7.33.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.slf4j.impl.Reload4jLoggerFactory]
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by org.apache.hadoop.hbase.unsafe.HBasePlatformDependent (file:/appli/var/hbase/lib/hbase-unsafe-4.1.2.jar) to method java.nio.Bits.unaligned()
+WARNING: Please consider reporting this to the maintainers of org.apache.hadoop.hbase.unsafe.HBasePlatformDependent
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+2022-12-16 10:27:32,073 WARN  [main] util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+HBase Shell
+Use "help" to get list of supported commands.
+Use "exit" to quit this interactive shell.
+For Reference, please visit: http://hbase.apache.org/2.0/book.html#shell
+Version 2.4.15-hadoop-3.3.4, rUnknown, Fri Nov 25 14:39:56 UTC 2022
+Took 0.0015 seconds
+hbase:001:0>
 ```
-###### Example of creating table and adding some values
+
+##### Check status
+
+``` shell
+hbase:001:0> status
+1 active master, 0 backup masters, 3 servers, 0 dead, 0.6667 average load
+Took 0.3261 seconds
+hbase:002:0>
 ```
-$ create 'album','label','image'
+
+##### Example of creating table and adding some values
+
+``` shell
+create 'album','label','image'
 ```
+
 Now you have a table called album, with a label, and an image family. These families are “static” like the columns in the RDBMS world.
 
 Add some data:
-```
-$ put 'album','label1','label:size','10'
-$ put 'album','label1','label:color','255:255:255'
-$ put 'album','label1','label:text','Family album'
-$ put 'album','label1','image:name','holiday'
-$ put 'album','label1','image:source','/tmp/pic1.jpg'
+
+``` shell
+put 'album','label1','label:size','10'
+put 'album','label1','label:color','255:255:255'
+put 'album','label1','label:text','Family album'
+put 'album','label1','image:name','holiday'
+put 'album','label1','image:source','/tmp/pic1.jpg'
 ```
 
 Print table album,label1.
-```
-$get 'album','label1'
+
+``` shell
+get 'album','label1'
 
 COLUMN                                              CELL
 image:name                                          timestamp=1454590694743, value=holiday
@@ -180,42 +271,35 @@ label:text                                          timestamp=1454590583786, val
 6 row(s) in 0.0320 seconds
 ```
 
-####5] Control cluster from web UI
-######Overview of UI web ports
-| web ui           | port       |
-| ---------------- |:----------:| 
-| Hbase            | 60010      |
+#### 6] Control cluster from web UI
 
+##### Overview of UI web ports
 
-######Access from parent computer of docker container
-Check IP addres in master container
+| web ui            | port       |  mapped host port              |
+| ----------------  |:----------:|:------------------------------:|
+| NameNode          | 9870       | [8000](http://localhost:8000/) |
+| SecondaryNameNode | 9868       | [8001](http://localhost:8000/) |
+| ResourceManager   | 8088       | [8010](http://localhost:8010/) |
+| Hbase master      | 60010      | [8020](http://localhost:8020/) |
+| Datanode          | 9864       | [81xx](http://localhost;8100/) |
+| Nodemanager       | 8042       | [82xx](http://localhost:82xx/) |
+| Regionserver      | 16030      | [83xx](http://localhost:83xx/) |
+
+xx: 00 for master, 01 for slave1, 02 for slave2....
+
+#### 7] Stopping HBase and Hadoop
+
+``` shell
+$ stop-hbase.sh
+...
+$ stop-hadoop.sh
+...
 ```
-$ ip a
 
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN 
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host 
-       valid_lft forever preferred_lft forever
-4: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP 
-    link/ether 02:42:ac:11:00:02 brd ff:ff:ff:ff:ff:ff
-    inet 172.17.0.2/16 scope global eth0
-       valid_lft forever preferred_lft forever
-    inet6 fe80::42:acff:fe11:2/64 scope link 
-       valid_lft forever preferred_lft forever
-
-```
-so your IP address is 172.17.0.2
-
-```
-$ xdg-open http://172.17.0.2:60010/
-```
-######Direct access from container(not implemented)
-Used Linux distribution is installed without graphical UI. Easiest way is to use another Unix distribution by modifying Dockerfile of hadoop-hbase-dnsmasq and rebuild images. In this case start-container.sh script must be modified. On the line where the master container is created must add parameters for [X forwarding](http://wiki.ros.org/docker/Tutorials/GUI). 
+### Hadoop usaga
 
 
-######HBase usage
+### HBase usage
 [python wrapper for HBase rest API](http://blog.cloudera.com/blog/2013/10/hello-starbase-a-python-wrapper-for-the-hbase-rest-api/)
 
 [usage of Java API for Hbase](https://autofei.wordpress.com/2012/04/02/java-example-code-using-hbase-data-model-operations/)

@@ -3,8 +3,8 @@
 
 <configuration>
    <property>
-        <name>hbase.rootdir</name>
-     <valuehdfs://master.bolthic.com:9000/hbase</value>
+      <name>hbase.rootdir</name>
+      <value>hdfs://master.bolthic.com:9000/hbase</value>
       <description>The directory shared by region servers. Should be fully-qualified to include the filesystem to use. E.g: hdfs://NAMENODE_SERVER:PORT/HBASE_ROOTDIR</description>
    </property>
    <property>

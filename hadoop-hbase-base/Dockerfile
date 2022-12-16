@@ -1,4 +1,4 @@
-FROM debian:bullseye
+FROM debian:bullseye-slim
 LABEL org.opencontainers.image.authors="niiboltoh3@protonmail.com"
 LABEL version="1.0"
 LABEL description="Image de base"
@@ -9,14 +9,18 @@ ENV HBASE_DISTRO=$hbase
 ENV DEBIAN_FRONTEND=noninteractive
 
 #removing unnecessary
-RUN cp -R /usr/share/locale/en* /tmp/ && rm -rf /usr/share/locale/* && mv /tmp/en* /usr/share/locale/ 
+# RUN cp -R /usr/share/locale/en* /tmp/ && rm -rf /usr/share/locale/* && mv /tmp/en* /usr/share/locale/ 
 RUN mkdir -p /usr/share/man/man1 /usr/share/man/man2
 
 # updating system
 RUN sed -i "s/ main/ main contrib/g" /etc/apt/sources.list
 RUN apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y
-RUN apt-get update && apt-get upgrade -y && apt-get -y install unzip dnsmasq wget openssh-server vim net-tools iproute2 dnsutils sudo
+RUN apt-get update && apt-get upgrade -y && apt-get -y --no-install-recommends install unzip dnsmasq wget curl openssh-server vim net-tools iproute2 dnsutils sudo
+
 RUN apt-get update && apt-get install -y --no-install-recommends openjdk-11-jre
+# RUN apt-get update && apt-get install -y --no-install-recommends openjdk-11-jdk
+RUN apt-get update && apt-get install -y --no-install-recommends python python3
+
 RUN rm -rf /var/cache/debconf/*-old && rm -rf /var/lib/apt/lists/* && rm -rf /usr/share/doc/* 
 
 #message
