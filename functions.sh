@@ -64,6 +64,8 @@ function download_distrib(){
     echo "   $GPG --import ${FILE}.keys"
     $GPG --import "${FILE}.keys" 2>/dev/null
     echo "   $SHASUM -c ${FILE}.sha"
+    sed -i 's/hadoop-3.3.6.*.tar.gz/hadoop-3.3.6.tar.gz/' "${FILE}.sha"
+    
     if $SHASUM -c "${FILE}.sha" >/dev/null; then
         echo "   $GPG --verify ${FILE}.asc ${FILE}"
         if $GPG --verify "${FILE}.asc" "${FILE}" 2>/dev/null; then
@@ -72,6 +74,7 @@ function download_distrib(){
             rm -f "${FILE}" "${FILE}.sha" "${FILE}.asc" "${FILE}.keys"
         else
             echo >&2 "   Failed: shasum ok but gpg signature failed"
+            exit 1
         fi
     elif [[ "`cat ${FILE}.sha`" = "`$GPG --print-md SHA512 ${FILE}`" ]]; then
         echo "   $GPG --verify ${FILE}.asc ${FILE}"
@@ -81,13 +84,29 @@ function download_distrib(){
             rm -f "${FILE}" "${FILE}.sha" "${FILE}.asc" "${FILE}.keys"
         else
             echo >&2 "   Failed: shasum ok but gpg signature failed"
+            exit 1
         fi
     else
         echo "   $GPG --verify ${FILE}.asc ${FILE}"
         if $GPG --verify "${FILE}.asc" "${FILE}" 2>/dev/null; then
-            echo >&2 "   Failed: shasum failed but gpg signature succeed"
+
+            shamod=`grep -Eo 'SHA[0-9]+' "${FILE}.sha" | grep -Eo '[0-9]+'`
+            shakey=`grep -Eo '[0-9a-z]{60,800}' "${FILE}.sha"`
+            shaval=`shasum -a $shamod ${FILE} | grep -Eo '[0-9a-z]{60,800}'`
+            echo trying "$shamod" 
+            echo "   shakey= $shakey"
+            echo "   shaval= $shaval"
+            if [[ "$shakey" = "$shaval" ]]; then
+                echo "   File is ok"
+                cp "${FILE}" "${DEST}"
+                rm -f "${FILE}" "${FILE}.sha" "${FILE}.asc" "${FILE}.keys"            
+            else
+                echo >&2 "   Failed: shasum failed but gpg signature succeed"
+                exit 1
+            fi
         else
             echo >&2"   Failed: both shasum and gpg signature failed"
+            exit 1
         fi
     fi
 }
