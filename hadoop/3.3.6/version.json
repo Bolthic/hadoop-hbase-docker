@@ -1,0 +1,16 @@
+{
+    "3.3.6": {
+        "BIN": {
+            "URL": "hadoop-3.3.6/hadoop-3.3.6.tar.gz",
+            "SHA": "hadoop-3.3.6/hadoop-3.3.6.tar.gz.sha512",
+            "ASC": "/hadoop-3.3.6/hadoop-3.3.6.tar.gz.asc"
+        },
+        "SRC": {
+            "URL": "hadoop-3.3.6/hadoop-3.3.6-src.tar.gz",
+            "SHA": "hadoop-3.3.6/hadoop-3.3.6-src.tar.gz.sha512",
+            "ASC": "/hadoop-3.3.6/hadoop-3.3.6-src.tar.gz.asc",
+            "PATCH": [
+            ]
+        }
+    }
+}
