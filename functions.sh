@@ -12,14 +12,23 @@ function check_command(){
 
 
 function json_load(){
+    if [ ! -d "$1" ]; then
+        echo >&2 "Missing project directory: $1"
+        exit 1
+    fi
+    if [ ! -d "$1/$2" ]; then
+        echo >&2 "Missing version directory: $1/$2"
+        exit 1
+    fi
+
     f1="$1/versions.json"
     f2="$1/$2/version.json"
     if [[ ! -e $f1 ]]; then
-        echo >&2 "Missing config file $f1"
+        echo >&2 "Missing common config file $f1"
         exit 1
     fi
     if [[ ! -e $f2 ]]; then
-        echo >&2 "Missing config file $f2"
+        echo >&2 "Missing version config file $f2"
         exit 1
     fi
     $JQ -s 'add' $f1 $f2
