@@ -1,0 +1,17 @@
+{
+    "3.3.5": {
+        "BIN": {
+            "URL": "hadoop-3.3.5/hadoop-3.3.5.tar.gz",
+            "SHA": "hadoop-3.3.5/hadoop-3.3.5.tar.gz.sha512",
+            "ASC": "/hadoop-3.3.5/hadoop-3.3.5.tar.gz.asc"
+        },
+        "SRC": {
+            "URL": "hadoop-3.3.5/hadoop-3.3.5-src.tar.gz",
+            "SHA": "hadoop-3.3.5/hadoop-3.3.5-src.tar.gz.sha512",
+            "ASC": "/hadoop-3.3.5/hadoop-3.3.5-src.tar.gz.asc",
+            "PATCH": [
+                "YARN-11527-Upgrade-node.js-to-14_0_0.patch"
+            ]
+        }
+    }
+}

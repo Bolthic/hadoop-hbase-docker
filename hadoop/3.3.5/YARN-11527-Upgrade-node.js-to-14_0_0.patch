@@ -1,0 +1,11 @@
+--- a/hadoop-project/pom.xml
++++ b/hadoop-project/pom.xml
+@@ -217,7 +217,7 @@
+     <woodstox.version>5.4.0</woodstox.version>
+     <json-smart.version>2.4.7</json-smart.version>
+     <nimbus-jose-jwt.version>9.8.1</nimbus-jose-jwt.version>
+-    <nodejs.version>v12.22.1</nodejs.version>
++    <nodejs.version>v14.0.0</nodejs.version>
+     <yarnpkg.version>v1.22.5</yarnpkg.version>
+     <apache-ant.version>1.10.11</apache-ant.version>
+     <jmh.version>1.20</jmh.version>
